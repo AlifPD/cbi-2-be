@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"cbi-2-be/middleware"
 	"cbi-2-be/models"
 	"encoding/json"
 	"net/http"
@@ -12,7 +13,13 @@ import (
 
 var users = map[string]string{}
 
-var jwtKey = []byte(os.Getenv("JWT_SECRET"))
+func LoadAdmin() {
+	adminUser := os.Getenv("ADMIN_USERNAME")
+	adminPass := os.Getenv("ADMIN_PASSWORD")
+	if adminUser != "" && adminPass != "" {
+		users[adminUser] = adminPass
+	}
+}
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	var user models.User
@@ -41,7 +48,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		"exp":      time.Now().Add(time.Hour * 2).Unix(),
 	})
 
-	tokenString, _ := token.SignedString(jwtKey)
+	tokenString, _ := token.SignedString(middleware.JwtKey)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 }

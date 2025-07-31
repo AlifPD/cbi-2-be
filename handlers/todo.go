@@ -6,34 +6,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 	"sync"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
 var todos = []models.Todo{}
 var todoID = 1
 var todoMutex = &sync.Mutex{}
-
-func extractUsername(r *http.Request) (string, error) {
-	authHeader := r.Header.Get("Authorization")
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return "", http.ErrNoCookie
-	}
-	tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
-	})
-	if err != nil || !token.Valid {
-		return "", http.ErrNoCookie
-	}
-
-	claims := token.Claims.(jwt.MapClaims)
-	username, _ := claims["username"].(string)
-	return username, nil
-}
 
 func GetTodos(w http.ResponseWriter, r *http.Request) {
 	username := middleware.GetUsername(r)
@@ -44,15 +22,12 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 			filtered = append(filtered, todo)
 		}
 	}
+
 	json.NewEncoder(w).Encode(filtered)
 }
 
 func CreateTodo(w http.ResponseWriter, r *http.Request) {
-	username, err := extractUsername(r)
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	username := middleware.GetUsername(r)
 
 	var todo models.Todo
 	json.NewDecoder(r.Body).Decode(&todo)
@@ -68,11 +43,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateTodo(w http.ResponseWriter, r *http.Request) {
-	username, err := extractUsername(r)
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	username := middleware.GetUsername(r)
 
 	idStr := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(idStr)
@@ -96,11 +67,7 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {
-	username, err := extractUsername(r)
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	username := middleware.GetUsername(r)
 
 	idStr := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(idStr)
