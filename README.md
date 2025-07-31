@@ -18,7 +18,6 @@ https://documenter.getpostman.com/view/20192847/2sB3B8tE23
 
 ## Prerequisite
 - Go
-- SQL Server (Locally or Hosted)
 
 ## How to Run
 
