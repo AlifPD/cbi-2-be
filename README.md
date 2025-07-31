@@ -16,6 +16,10 @@ App ini merupakan Simple To Do list.
 Dokumentasi API dapat dilihat pada link dibawah ini:
 https://documenter.getpostman.com/view/20192847/2sB3B8tE23
 
+Dapat menggunakan user admin dengan kredensial berikut:
+- username: admin
+- password: admin123
+
 ## Prerequisite
 - Go
 
